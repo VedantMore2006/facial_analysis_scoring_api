@@ -7,3 +7,4 @@ numpy>=1.26.0
 scikit-learn>=1.3.0
 python-multipart>=0.0.9
 xgboost
+python-dotenv==1.1.1

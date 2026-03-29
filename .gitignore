@@ -48,6 +48,9 @@ Thumbs.db
 
 # IDE / editor
 .vscode/
+
+# Environment variables
+.env
 .idea/
 
 # Local env files

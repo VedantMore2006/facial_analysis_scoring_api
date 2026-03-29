@@ -2,14 +2,18 @@ from __future__ import annotations
 
 import json
 import os
+import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Dict, List
 
 import joblib
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.openapi.utils import get_openapi
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 
 from scoring_utils import _probability_output, resolve_expected_feature_order
 
@@ -18,6 +22,31 @@ APP_TITLE = "Facial Risk Scoring API"
 DEFAULT_LABEL_COL = os.environ.get("LABEL_COL", "condition_label")
 
 project_root = Path(__file__).resolve().parent
+
+# Load environment variables from .env file
+load_dotenv(project_root / ".env")
+
+# API key configuration
+API_KEY_ENV_VAR = "SCORING_API_KEY"
+API_KEY_HEADER_NAME = "X-API-Key"
+
+
+def _load_api_key() -> str:
+    """Load and validate API key from environment variable on startup."""
+    key = os.getenv(API_KEY_ENV_VAR, "").strip()
+    if not key:
+        raise RuntimeError(
+            f"Missing required environment variable {API_KEY_ENV_VAR}. "
+            f"Set it before starting the API."
+        )
+    if key == "CHANGE_ME":
+        raise RuntimeError(
+            f"Invalid {API_KEY_ENV_VAR} value. Replace placeholder value 'CHANGE_ME' with a real key."
+        )
+    return key
+
+
+EXPECTED_API_KEY = _load_api_key()
 
 _DEFAULT_MODEL_DIR = os.environ.get(
     "MODEL_DIR",
@@ -65,7 +94,61 @@ async def lifespan(app: FastAPI):
     yield  # app runs — model stays in memory
 
 
-app = FastAPI(title=APP_TITLE, version="1.0.0", lifespan=lifespan)
+app = FastAPI(
+    title=APP_TITLE,
+    version="1.0.0",
+    description="Facial Risk Scoring API requiring authentication via X-API-Key header.",
+    lifespan=lifespan,
+)
+
+# API Key security configuration
+api_key_header = APIKeyHeader(
+    name=API_KEY_HEADER_NAME,
+    description="API key required for authentication. Obtain from deployment configuration.",
+    auto_error=False,
+)
+
+
+def require_api_key(provided_key: str | None = Depends(api_key_header)) -> None:
+    """Validate API key from X-API-Key header using timing-attack resistant comparison."""
+    if not provided_key or not secrets.compare_digest(provided_key, EXPECTED_API_KEY):
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
+
+def custom_openapi():
+    """Add security scheme to OpenAPI spec for Swagger UI display."""
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    openapi_schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
+
+    # Register X-API-Key as security scheme
+    openapi_schema["components"]["securitySchemes"] = {
+        "api_key": {
+            "type": "apiKey",
+            "in": "header",
+            "name": API_KEY_HEADER_NAME,
+            "description": "API key for authentication. Required for all scoring endpoints.",
+        }
+    }
+
+    # Apply security requirement to all endpoints except /health
+    for path, path_item in openapi_schema["paths"].items():
+        if path != "/health":
+            for operation in path_item.values():
+                if isinstance(operation, dict) and "operationId" in operation:
+                    operation["security"] = [{"api_key": []}]
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
 
 
 @app.get("/health")
@@ -88,7 +171,7 @@ class ScoreResponse(BaseModel):
 
 
 @app.post("/score", response_model=ScoreResponse)
-def score_vector(req: ScoreRequest) -> ScoreResponse:
+def score_vector(req: ScoreRequest, _auth: None = Depends(require_api_key)) -> ScoreResponse:
     try:
         model_features = (
             [str(f) for f in _model.feature_names_in_.tolist()]
