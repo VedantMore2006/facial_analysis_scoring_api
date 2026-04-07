@@ -12,7 +12,7 @@ Both APIs require **API Key authentication** via the `X-API-Key` header.
 ## Swagger UI Documentation
 ```
 Extraction API: http://127.0.0.1:8001/docs
-Scoring API: http://127.0.0.1:8002/docs
+Scoring API: http://127.0.0.1:8011/docs
 ```
 
 ## 1. Prerequisites
@@ -56,10 +56,10 @@ Start Extraction API on port 8001:
 uvicorn extraction_api:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-Start Scoring API on port 8002:
+Start Scoring API on port 8011:
 
 ```bash
-uvicorn scoring_api:app --host 0.0.0.0 --port 8002 --reload
+uvicorn scoring_api:app --host 0.0.0.0 --port 8011 --reload
 ```
 
 Both APIs will validate the `SCORING_API_KEY` environment variable on startup and fail if it's missing or still set to the placeholder value `CHANGE_ME`.
@@ -173,7 +173,7 @@ Example call:
 ```bash
 API_KEY="<your_api_key>"  # Load from .env
 
-curl -X POST "http://127.0.0.1:8002/score" \
+curl -X POST "http://127.0.0.1:8011/score" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
   -d @score_input.json
@@ -210,7 +210,7 @@ Optional flags:
 ```bash
 python3 api/test_pipeline.py assets/test.mp4 \
   --extract-port 8001 \
-  --score-port 8002 \
+  --score-port 8011 \
   --mode balanced
 ```
 
@@ -223,7 +223,7 @@ Example output:
       session_id=b99baf61...  features=63
 [2/3] Fetching vector → http://127.0.0.1:8001/extract/session/b99baf61.../vector
       63 features retrieved
-[3/3] Scoring vector → http://127.0.0.1:8002/score
+[3/3] Scoring vector → http://127.0.0.1:8011/score
 =============================================
   DOMINANT RISK: STRESS                98.0%
 ---------------------------------------------
@@ -264,7 +264,7 @@ curl -s "http://127.0.0.1:8001/extract/session/$SESSION/vector" \
 Step 3: score:
 
 ```bash
-curl -X POST "http://127.0.0.1:8002/score" \
+curl -X POST "http://127.0.0.1:8011/score" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
   -d @/tmp/score_input.json
@@ -301,7 +301,7 @@ curl -X POST "http://127.0.0.1:8002/score" \
 Both APIs include interactive Swagger UI documentation with built-in API key support:
 
 1. **Extraction API Docs**: http://127.0.0.1:8001/docs
-2. **Scoring API Docs**: http://127.0.0.1:8002/docs
+2. **Scoring API Docs**: http://127.0.0.1:8011/docs
 
 To use Swagger UI:
 
