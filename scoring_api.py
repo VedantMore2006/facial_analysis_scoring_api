@@ -157,7 +157,11 @@ def health() -> dict:
 
 
 class ScoreRequest(BaseModel):
-    vector: Dict[str, float] = Field(..., description="ML-ready session vector")
+    vector: Dict[str, float] | None = Field(default=None, description="ML-ready session vector")
+
+    model_config = {
+        "extra": "allow"
+    }
 
 
 class RiskRow(BaseModel):
@@ -173,22 +177,32 @@ class ScoreResponse(BaseModel):
 @app.post("/score", response_model=ScoreResponse)
 def score_vector(req: ScoreRequest, _auth: None = Depends(require_api_key)) -> ScoreResponse:
     try:
+        # Fallback logic: use the 'vector' field if present, otherwise treat 
+        # the entire request body as the vector (excluding the None 'vector' field).
+        if req.vector is not None:
+            vector_data = req.vector
+        else:
+            # Fallback for flat vectors or other formats. 
+            # req.model_dump(exclude_unset=True) gets all fields provided in request.
+            input_dict = req.model_dump(exclude={"vector"})
+            vector_data = input_dict
+
         model_features = (
             [str(f) for f in _model.feature_names_in_.tolist()]
             if hasattr(_model, "feature_names_in_")
             else list(_expected_features)
         )
 
-        missing = [f for f in model_features if f not in req.vector]
+        missing = [f for f in model_features if f not in vector_data]
         if missing:
             raise ValueError(f"Input vector missing required features: {missing[:10]} (total {len(missing)})")
 
-        extra = [f for f in req.vector if f not in set(model_features)]
+        extra = [f for f in vector_data if f not in set(model_features)]
         if extra:
             raise ValueError(f"Input vector has unknown features: {extra[:10]} (total {len(extra)})")
 
         X_model = pd.DataFrame(
-            [{name: float(req.vector[name]) for name in model_features}],
+            [{name: float(vector_data[name]) for name in model_features}],
             columns=model_features,
         )
         pred_idx = int(_model.predict(X_model)[0])
