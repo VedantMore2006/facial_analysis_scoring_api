@@ -74,18 +74,31 @@ Score an example vector:
 ```bash
 API_KEY=$(grep "^SCORING_API_KEY=" .env | cut -d'=' -f2)
 
+# Option 1: Direct flat vector
 curl -X POST "http://localhost:8011/score" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
   -d '{
-    "vector": {
-      "au12_mean_amplitude__slope": 0.000123,
-      "au12_variance__min": 0.000045
-    }
+      "nod_onset_latency__mean": 0.987,
+      "head_motion_energy__slope": 0.476
   }'
+
+# Option 2: Using a session report file (like example.json)
+curl -X POST "http://localhost:8011/score" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $API_KEY" \
+  -d @example.json
 ```
 
-### 4. Stop the Service
+### 4. Use the Test Client
+
+A Python test client is provided for convenience:
+
+```bash
+python3 test_scoring.py example.json
+```
+
+### 5. Stop the Service
 
 ```bash
 docker-compose down
@@ -292,6 +305,17 @@ docker-compose down
 docker-compose build
 docker-compose up -d
 ```
+
+## Testing with test_scoring.py
+
+The standalone `test_scoring.py` script makes it easy to verify your deployment:
+
+1. Ensure `.env` is configured on the host.
+2. Run the script:
+   ```bash
+   python3 test_scoring.py
+   ```
+   It will automatically load the key and test against the default `example.json`.
 
 ## Useful Commands
 

@@ -35,6 +35,9 @@ cp .env.example .env
 
 docker-compose up -d
 curl http://localhost:8011/health
+
+# Run test client
+python3 test_scoring.py example.json
 ```
 
 ### 2. Push to GitHub

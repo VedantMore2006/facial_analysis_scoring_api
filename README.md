@@ -52,13 +52,28 @@ What it does:
 - Runs model inference
 - Returns dominant risk plus all remaining risks sorted by probability
 
-Request body:
+**Flexible Request Body:**
+The API supports two input formats:
+1. **Direct Vector**: A flat JSON object containing feature names as keys.
+2. **Wrapped Object (Session Report)**: A JSON object containing a `"vector"` key (e.g., the format of `example.json`).
 
+The API prioritizes the `"vector"` key if present; otherwise, it treats the top-level object as the vector.
+
+Example Request (Direct):
 ```json
 {
+  "nod_onset_latency__mean": 0.987,
+  "head_motion_energy__slope": 0.476
+}
+```
+
+Example Request (Wrapped/example.json):
+```json
+{
+  "session_id": "4bc4fabea...",
   "vector": {
-    "feature_name_1": 0.123,
-    "feature_name_2": 0.456
+    "nod_onset_latency__mean": 0.987,
+    "head_motion_energy__slope": 0.476
   }
 }
 ```
@@ -84,7 +99,7 @@ Response body shape:
 }
 ```
 
-curl example (inline JSON):
+curl example (Direct Vector):
 
 ```bash
 API_KEY="<your_api_key>"
@@ -93,31 +108,33 @@ curl -X POST "http://127.0.0.1:8011/score" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
   -d '{
-    "vector": {
-      "au12_mean_amplitude__slope": 0.000123,
-      "au12_variance__min": 0.000045
-    }
+      "nod_onset_latency__mean": 0.987,
+      "head_motion_energy__slope": 0.476
   }'
 ```
 
-curl example (JSON file):
+curl example (Using example.json):
 
 ```bash
 API_KEY="<your_api_key>"
 
-cat > score_input.json << 'EOF'
-{
-  "vector": {
-    "au12_mean_amplitude__slope": 0.000123,
-    "au12_variance__min": 0.000045
-  }
-}
-EOF
-
 curl -X POST "http://127.0.0.1:8011/score" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
-  -d @score_input.json
+  -d @example.json
+```
+
+## Test Client Script
+
+A standalone Python script `test_scoring.py` is provided for quick verification. It automatically loads your API key from `.env` and defaults to testing against `example.json`.
+
+**Usage:**
+```bash
+# Test with default example.json
+python3 test_scoring.py
+
+# Test with a specific JSON file
+python3 test_scoring.py my_data.json
 ```
 
 ## Authentication Setup
