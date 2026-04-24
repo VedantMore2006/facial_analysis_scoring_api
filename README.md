@@ -7,7 +7,7 @@ This repository currently contains one FastAPI service:
 ## Service Summary
 
 - Framework: FastAPI
-- Main app file: scoring_api.py
+- Main app file: app.py
 - Default port: 8011
 - Auth: API key via X-API-Key header (required for /score)
 - Public endpoint: /health
@@ -55,7 +55,7 @@ What it does:
 **Flexible Request Body:**
 The API supports two input formats:
 1. **Direct Vector**: A flat JSON object containing feature names as keys.
-2. **Wrapped Object (Session Report)**: A JSON object containing a `"vector"` key (e.g., the format of `example.json`).
+2. **Wrapped Object (Session Report)**: A JSON object containing a `"vector"` key (e.g., the format of `payload.json`).
 
 The API prioritizes the `"vector"` key if present; otherwise, it treats the top-level object as the vector.
 
@@ -67,7 +67,7 @@ Example Request (Direct):
 }
 ```
 
-Example Request (Wrapped/example.json):
+Example Request (Wrapped/payload.json):
 ```json
 {
   "session_id": "4bc4fabea...",
@@ -113,7 +113,7 @@ curl -X POST "http://127.0.0.1:8011/score" \
   }'
 ```
 
-curl example (Using example.json):
+curl example (Using payload.json):
 
 ```bash
 API_KEY="<your_api_key>"
@@ -121,21 +121,53 @@ API_KEY="<your_api_key>"
 curl -X POST "http://127.0.0.1:8011/score" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
-  -d @example.json
+  -d @payload.json
 ```
 
-## Test Client Script
+## How To Use (Python requests)
 
-A standalone Python script `test_scoring.py` is provided for quick verification. It automatically loads your API key from `.env` and defaults to testing against `example.json`.
+```python
+import json
+import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+url = "http://127.0.0.1:8011/score"
+
+with open("payload.json", "r", encoding="utf-8") as f:
+    payload = json.load(f)
+
+headers = {
+    "x-api-key": os.getenv("SCORING_API_KEY"),
+    "content-type": "application/json"
+}
+
+response = requests.post(url, json=payload, headers=headers, timeout=120)
+print(response.status_code)
+print(response.json())
+```
+
+## Ready-To-Run Script
+
+A standalone Python script `run.py` is provided for quick verification. It automatically loads your API key from `.env`, reads `payload.json`, calls the API, and prints output.
 
 **Usage:**
 ```bash
-# Test with default example.json
-python3 test_scoring.py
-
-# Test with a specific JSON file
-python3 test_scoring.py my_data.json
+python run.py
 ```
+
+On success, `run.py` also writes the structured response to `output.json`.
+
+## Submission Files
+
+The required submission artifacts are present:
+
+- `payload.json` (sample input)
+- `output.json` (sample output from a real API call)
+- `run.py` (single-command runner)
+- `example.env` (environment template)
 
 ## Authentication Setup
 
@@ -144,7 +176,7 @@ The API key is loaded from environment variable SCORING_API_KEY at startup.
 1. Create local env file:
 
 ```bash
-cp .env.example .env
+cp example.env .env
 ```
 
 2. Generate secure key:
@@ -174,7 +206,7 @@ pip install -r requirements.txt
 Start API:
 
 ```bash
-uvicorn scoring_api:app --host 0.0.0.0 --port 8011 --reload
+uvicorn app:app --host 0.0.0.0 --port 8011 --reload
 ```
 
 Swagger docs:

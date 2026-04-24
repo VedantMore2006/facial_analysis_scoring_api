@@ -34,7 +34,7 @@ ENV PATH=/root/.local/bin:$PATH \
     PYTHONDONTWRITEBYTECODE=1
 
 # Copy application code
-COPY scoring_api.py .
+COPY app.py .
 COPY scoring_utils.py .
 COPY reports/ ./reports/
 
@@ -46,4 +46,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 EXPOSE 8011
 
 # Start application
-CMD ["uvicorn", "scoring_api:app", "--host", "0.0.0.0", "--port", "8011"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8011"]

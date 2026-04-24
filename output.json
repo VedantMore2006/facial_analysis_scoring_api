@@ -1,0 +1,28 @@
+{
+  "dominant_risk": {
+    "label": "stress",
+    "probability": 0.9975455403327942
+  },
+  "other_risks": [
+    {
+      "label": "bipolar",
+      "probability": 0.0009333420894108713
+    },
+    {
+      "label": "anxiety",
+      "probability": 0.0007037690957076848
+    },
+    {
+      "label": "suicidal_tendency",
+      "probability": 0.0002958968689199537
+    },
+    {
+      "label": "depression",
+      "probability": 0.00026984221767634153
+    },
+    {
+      "label": "phobia",
+      "probability": 0.0002516227832529694
+    }
+  ]
+}

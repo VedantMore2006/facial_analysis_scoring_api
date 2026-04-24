@@ -83,11 +83,11 @@ curl -X POST "http://localhost:8011/score" \
       "head_motion_energy__slope": 0.476
   }'
 
-# Option 2: Using a session report file (like example.json)
+# Option 2: Using a session report file (like payload.json)
 curl -X POST "http://localhost:8011/score" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
-  -d @example.json
+  -d @payload.json
 ```
 
 ### 4. Use the Test Client
@@ -95,7 +95,7 @@ curl -X POST "http://localhost:8011/score" \
 A Python test client is provided for convenience:
 
 ```bash
-python3 test_scoring.py example.json
+python run.py
 ```
 
 ### 5. Stop the Service
@@ -306,16 +306,16 @@ docker-compose build
 docker-compose up -d
 ```
 
-## Testing with test_scoring.py
+## Testing with run.py
 
-The standalone `test_scoring.py` script makes it easy to verify your deployment:
+The standalone `run.py` script makes it easy to verify your deployment:
 
 1. Ensure `.env` is configured on the host.
 2. Run the script:
    ```bash
-   python3 test_scoring.py
+  python run.py
    ```
-   It will automatically load the key and test against the default `example.json`.
+  It will automatically load the key, submit `payload.json`, and write `output.json`.
 
 ## Useful Commands
 

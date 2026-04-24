@@ -30,14 +30,14 @@ https://github.com/yourusername/your-repo/raw/main/docker-compose.yml
 ### 1. Local Testing
 
 ```bash
-cp .env.example .env
+cp example.env .env
 # Edit .env and set SCORING_API_KEY
 
 docker-compose up -d
 curl http://localhost:8011/health
 
 # Run test client
-python3 test_scoring.py example.json
+python run.py
 ```
 
 ### 2. Push to GitHub
