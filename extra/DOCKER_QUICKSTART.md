@@ -19,7 +19,7 @@ https://github.com/yourusername/your-repo/raw/main/docker-compose.yml
 ### What Happens Automatically
 
 ✅ Builds `facial-scoring-api:latest` image  
-✅ Starts container on port 8011  
+✅ Starts container on port 5200  
 ✅ Mounts network: scoring-network  
 ✅ Enables health checks every 30 seconds  
 ✅ Auto-restarts on failure  
@@ -33,8 +33,9 @@ https://github.com/yourusername/your-repo/raw/main/docker-compose.yml
 cp example.env .env
 # Edit .env and set SCORING_API_KEY
 
+
 docker-compose up -d
-curl http://localhost:8011/health
+curl http://localhost:5200/health
 
 # Run test client
 python run.py
@@ -65,12 +66,12 @@ git push -u origin main
 ### 4. Access API
 
 ```
-http://<your-vps-ip>:8011/docs
+http://<your-vps-ip>:5200/docs
 ```
 
 ## Important Notes
 
-- **Port**: 8011 (ensure it's open on firewall)
+- **Port**: 5200 (ensure it's open on firewall)
 - **Environment**: Load from `.env` file (never commit to Git)
 - **Images**: Must include `reports/` directory with model artifacts
 - **Health Check**: Runs every 30s, container auto-restarts if unhealthy

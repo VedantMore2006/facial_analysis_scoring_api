@@ -7,7 +7,7 @@ This guide explains how to deploy the Facial Risk Scoring API using Docker and D
 - Docker installed (version 20.10+)
 - Docker Compose installed (version 1.29+)
 - Your API key generated
-- Port 8011 available on your server
+- Port 5200 available on your server
 
 ## Quick Start
 
@@ -60,13 +60,13 @@ docker-compose logs -f scoring-api
 Health check:
 
 ```bash
-curl http://localhost:8011/health
+curl http://localhost:5200/health
 ```
 
 Swagger UI documentation:
 
 ```
-http://localhost:8011/docs
+http://localhost:5200/docs
 ```
 
 Score an example vector:
@@ -75,7 +75,7 @@ Score an example vector:
 API_KEY=$(grep "^SCORING_API_KEY=" .env | cut -d'=' -f2)
 
 # Option 1: Direct flat vector
-curl -X POST "http://localhost:8011/score" \
+curl -X POST "http://localhost:5200/score" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
   -d '{
@@ -84,7 +84,7 @@ curl -X POST "http://localhost:8011/score" \
   }'
 
 # Option 2: Using a session report file (like payload.json)
-curl -X POST "http://localhost:8011/score" \
+curl -X POST "http://localhost:5200/score" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
   -d @payload.json
@@ -133,10 +133,10 @@ git push -u origin main
    ```
 5. Click **Deploy**
 6. The Docker Manager will:
-   - Pull the `docker-compose.yml` from GitHub
-   - Build the Docker image
-   - Start the container
-   - Expose port 8011
+  - Pull the `docker-compose.yml` from GitHub
+  - Build the Docker image
+  - Start the container
+  - Expose port 5200
 
 ### Step 3: Configure Environment Variables
 
@@ -156,7 +156,7 @@ In Hostinger Docker Manager:
 Your API will be accessible at:
 
 ```
-http://<your-vps-ip>:8011/docs
+http://<your-vps-ip>:5200/docs
 ```
 
 Replace `<your-vps-ip>` with your actual VPS IP address.
@@ -167,7 +167,7 @@ Replace `<your-vps-ip>` with your actual VPS IP address.
 
 - **build**: Builds the image using the Dockerfile
 - **image**: Tags the image as `facial-scoring-api:latest`
-- **ports**: Maps container port 8011 to host port 8011
+- **ports**: Maps container port 5200 to host port 5200
 - **environment**: Loads variables from `.env` file
 - **restart**: Automatically restarts if container crashes
 - **healthcheck**: Monitors container health every 30 seconds
@@ -185,15 +185,15 @@ Replace `<your-vps-ip>` with your actual VPS IP address.
 
 ### Port already in use
 
-If port 8011 is already in use:
+If port 5200 is already in use:
 
 ```bash
-# Find process using port 8011
-lsof -i :8011
+# Find process using port 5200
+lsof -i :5200
 
 # Or change port in docker-compose.yml:
 ports:
-  - "8011:8011"  # Change first 8011 to another port
+  - "5200:5200"  # Change first 5200 to another port
 ```
 
 ### API key validation fails
@@ -270,14 +270,14 @@ services:
   scoring-api-1:
     build: .
     ports:
-      - "8011:8011"
+      - "5200:5200"
     environment:
       - SCORING_API_KEY=${SCORING_API_KEY}
 
   scoring-api-2:
     build: .
     ports:
-      - "8012:8011"
+      - "5201:5200"
     environment:
       - SCORING_API_KEY=${SCORING_API_KEY}
 ```

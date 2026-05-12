@@ -8,7 +8,7 @@ This repository currently contains one FastAPI service:
 
 - Framework: FastAPI
 - Main app file: app.py
-- Default port: 8011
+- Default port: 5200
 - Auth: API key via X-API-Key header (required for /score)
 - Public endpoint: /health
 
@@ -37,7 +37,7 @@ Example response:
 curl example:
 
 ```bash
-curl -X GET "http://127.0.0.1:8011/health"
+curl -X GET "http://127.0.0.1:5200/health"
 ```
 
 ### 2) Score Session Vector
@@ -104,7 +104,7 @@ curl example (Direct Vector):
 ```bash
 API_KEY="<your_api_key>"
 
-curl -X POST "http://127.0.0.1:8011/score" \
+curl -X POST "http://127.0.0.1:5200/score" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
   -d '{
@@ -118,7 +118,7 @@ curl example (Using payload.json):
 ```bash
 API_KEY="<your_api_key>"
 
-curl -X POST "http://127.0.0.1:8011/score" \
+curl -X POST "http://127.0.0.1:5200/score" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $API_KEY" \
   -d @payload.json
@@ -134,7 +134,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-url = "http://127.0.0.1:8011/score"
+  url = "http://127.0.0.1:5200/score"
 
 with open("payload.json", "r", encoding="utf-8") as f:
     payload = json.load(f)
@@ -206,12 +206,12 @@ pip install -r requirements.txt
 Start API:
 
 ```bash
-uvicorn app:app --host 0.0.0.0 --port 8011 --reload
+uvicorn app:app --host 0.0.0.0 --port 5200 --reload
 ```
 
 Swagger docs:
 
-- http://127.0.0.1:8011/docs
+- http://127.0.0.1:5200/docs
 
 In Swagger UI:
 1. Click Authorize

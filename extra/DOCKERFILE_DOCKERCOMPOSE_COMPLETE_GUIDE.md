@@ -20,8 +20,8 @@ Minimum required:
 
 1. Your API entry file (example: scoring_api.py)
 2. requirements.txt
-3. The command you use to run your API (example: uvicorn scoring_api:app --port 8011)
-4. Port number your API should expose (here: 8011)
+3. The command you use to run your API (example: uvicorn scoring_api:app --port 5200)
+4. Port number your API should expose (here: 5200)
 
 Optional but recommended:
 
@@ -37,7 +37,7 @@ Optional but recommended:
 2. Create docker-compose.yml in repo root.
 3. Replace only 3 values:
    - APP_MODULE (example: scoring_api:app)
-   - PORT (example: 8011)
+  - PORT (example: 5200)
    - ENV vars (if needed)
 4. Run:
 
@@ -49,7 +49,7 @@ docker compose up -d
 5. Test:
 
 ```bash
-curl http://localhost:8011/health
+curl http://localhost:5200/health
 ```
 
 ---
@@ -61,7 +61,7 @@ You can copy this as-is for most FastAPI projects.
 Change only:
 
 - APP MODULE in the last line
-- PORT if not 8011
+- PORT if not 5200
 
 ```dockerfile
 FROM python:3.10-slim
@@ -80,13 +80,13 @@ COPY . .
 
 ENV PYTHONUNBUFFERED=1
 
-EXPOSE 8011
+EXPOSE 5200
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-  CMD curl -f http://localhost:8011/health || exit 1
+  CMD curl -f http://localhost:5200/health || exit 1
 
 # Change APP_MODULE if needed, example: main:app or api:app
-CMD ["uvicorn", "scoring_api:app", "--host", "0.0.0.0", "--port", "8011"]
+CMD ["uvicorn", "scoring_api:app", "--host", "0.0.0.0", "--port", "5200"]
 ```
 
 ---
@@ -98,7 +98,7 @@ You can copy this as-is for most single API services.
 Change only:
 
 - Service name (optional)
-- APP port if not 8011
+- APP port if not 5200
 - Environment variable names/values as needed
 
 ```yaml
@@ -112,7 +112,7 @@ services:
     image: my-api:latest
     container_name: my-api
     ports:
-      - "8011:8011"
+      - "5200:5200"
     environment:
       - PYTHONUNBUFFERED=1
       - SCORING_API_KEY=${SCORING_API_KEY}
@@ -120,7 +120,7 @@ services:
       - LABEL_COL=${LABEL_COL:-condition_label}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8011/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5200/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -238,7 +238,7 @@ https://raw.githubusercontent.com/<org>/<repo>/main/docker-compose.yml
 5. Open API docs:
 
 ```text
-http://<vps-ip>:8011/docs
+http://<vps-ip>:5200/docs
 ```
 
 ---

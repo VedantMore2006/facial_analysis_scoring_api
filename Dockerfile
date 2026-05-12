@@ -40,10 +40,10 @@ COPY reports/ ./reports/
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-    CMD curl -f http://localhost:8011/health || exit 1
+    CMD curl -f http://localhost:5200/health || exit 1
 
 # Expose port
-EXPOSE 8011
+EXPOSE 5200
 
 # Start application
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8011"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5200"]

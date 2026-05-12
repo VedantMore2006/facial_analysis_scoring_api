@@ -12,7 +12,7 @@ def main() -> int:
 
     api_key = os.getenv("SCORING_API_KEY")
     host = os.getenv("API_HOST", "127.0.0.1")
-    port = os.getenv("API_PORT", "8011")
+    port = os.getenv("API_PORT", "5200")
     base_url = f"http://{host}:{port}"
 
     if not api_key:
